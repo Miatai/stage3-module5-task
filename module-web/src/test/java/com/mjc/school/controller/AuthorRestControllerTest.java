@@ -107,7 +107,7 @@ public class AuthorRestControllerTest {
             .param("id", (int) id1)
             .body(new AuthorDtoRequest(name1))
             .when()
-            .put(BASE_URI + "/" + (int) id1)
+            .patch(BASE_URI + "/" + (int) id1)
             .then()
             .statusCode(200)
             .body("id", Matchers.equalTo((int) id1))

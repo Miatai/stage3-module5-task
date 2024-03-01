@@ -126,7 +126,7 @@ public class NewsRestControllerTest {
             .param("id", 1)
             .body(new NewsDtoUpdateRequest(title1, content1, null, null, null))
             .when()
-            .put(BASE_URI + "/" + (int) id1)
+            .patch(BASE_URI + "/" + (int) id1)
             .then()
             .statusCode(200)
             .body("id", Matchers.equalTo((int) id1))

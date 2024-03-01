@@ -110,7 +110,7 @@ public class TagRestControllerTest {
             .param("id", 1)
             .body(new TagDtoRequest(name1))
             .when()
-            .put(BASE_URI + "/" + (int) id1)
+            .patch(BASE_URI + "/" + (int) id1)
             .then()
             .statusCode(200)
             .body("id", Matchers.equalTo((int) id1))

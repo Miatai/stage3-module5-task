@@ -111,7 +111,7 @@ public class CommentRestControllerTest {
             .param("id", 1)
             .body(new AuthorDtoRequest(content1))
             .when()
-            .put(BASE_URI + "/" + (int) id1)
+            .patch(BASE_URI + "/" + (int) id1)
             .then()
             .statusCode(200)
             .body("id", Matchers.equalTo((int) id1))

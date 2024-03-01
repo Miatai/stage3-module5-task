@@ -6,13 +6,11 @@ import com.mjc.school.service.CommentService;
 import com.mjc.school.service.NewsService;
 import com.mjc.school.service.TagService;
 import com.mjc.school.service.dto.*;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/api/v1/news", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "News Rest Controller", description = "Operations for creating, updating, retrieving and deleting news and retrieving component of news in the application")
+@Api(produces = "application/json", value = "Operations for creating, patching, retrieving and deleting news and retrieving component of news in the application")
 public class NewsRestController implements BaseController<NewsDtoCreateRequest, NewsDtoResponse, Long, NewsDtoUpdateRequest> {
     private final NewsService newsService;
     private final TagService tagService;
@@ -48,25 +46,16 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @Override
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "View all news")
+    @ApiOperation(value = "View all news", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved all news"),
-        @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
-    }
-    )
-    public PageDtoResponse<NewsDtoResponse> readAll(@Parameter(description = "Page number", required = false)
-                                                    @RequestParam(value = "page", defaultValue = "0")
-                                                    int page,
-                                                    @Parameter(description = "Page size", required = false)
-                                                    @RequestParam(value = "page-size", defaultValue = "10")
-                                                    int pageSize,
-                                                    @Parameter(description = "Sorting field and sort type", example = "fieldName:sortType", required = false)
-                                                    @RequestParam(value = "sorting", required = false)
-                                                    List<String> sortByAndOrder,
-                                                    @Parameter(description = "Field and value for filtering", example = "fieldName:value", required = false)
-                                                    @RequestParam(value = "filter", required = false)
-                                                    List<String> filters
+        @ApiResponse(code = 200, message = "Successfully retrieved all news"),
+        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
+    })
+    public PageDtoResponse<NewsDtoResponse> readAll(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                    @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
+                                                    @RequestParam(value = "sorting", required = false) List<String> sortByAndOrder,
+                                                    @RequestParam(value = "filter", required = false) List<String> filters
     ) {
         PaginationDtoRequest paginationDtoRequest = PaginationDtoRequest.builder()
             .page(page)
@@ -88,29 +77,26 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @Override
     @GetMapping(value = "/{id:\\d+}")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Retrieve specific news with the supplied id")
+    @ApiOperation(value = "Retrieve specific news with the supplied id", response = NewsDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved the news with the supplied id"),
-        @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
-    }
-    )
-    public NewsDtoResponse readById(@PathVariable
-                                    @Parameter(name = "id", description = "News id", example = "1")
-                                    Long id) {
+        @ApiResponse(code = 200, message = "Successfully retrieved the news with the supplied id"),
+        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
+    })
+    public NewsDtoResponse readById(@PathVariable Long id) {
         return addHateoasLinksToNewsDtoResponse(newsService.readById(id));
     }
 
     @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create a news")
+    @ApiOperation(value = "Create a news", response = NewsDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Successfully created a news"),
-        @ApiResponse(responseCode = "400", description = "The request parameters are invalid"),
-        @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully created a news"),
+        @ApiResponse(code = 400, message = "The request parameters are invalid"),
+        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
     public NewsDtoResponse create(@RequestBody NewsDtoCreateRequest dtoRequest) {
@@ -118,19 +104,17 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     }
 
     @Override
-    @PutMapping(value = "/{id:\\d+}")
+    @PatchMapping(value = "/{id:\\d+}")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Update news information")
+    @ApiOperation(value = "Patch news information", response = NewsDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully updated news information"),
-        @ApiResponse(responseCode = "400", description = "The request parameters are invalid"),
-        @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully patched news information"),
+        @ApiResponse(code = 400, message = "The request parameters are invalid"),
+        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
-    public NewsDtoResponse update(@PathVariable
-                                  @Parameter(name = "id", description = "News id", example = "1")
-                                  Long id,
+    public NewsDtoResponse update(@PathVariable Long id,
                                   @RequestBody NewsDtoUpdateRequest dtoRequest) {
         return addHateoasLinksToNewsDtoResponse(newsService.update(id, dtoRequest));
     }
@@ -138,41 +122,31 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Deletes specific news with the supplied id")
+    @ApiOperation(value = "Deletes specific news with the supplied id")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Successfully deleted the specific news"),
-        @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
+        @ApiResponse(code = 204, message = "Successfully deleted the specific news"),
+        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
-    public void deleteById(@PathVariable
-                           @Parameter(name = "id", description = "Product id", example = "1")
-                           Long id) {
+    public void deleteById(@PathVariable Long id) {
         newsService.deleteById(id);
     }
 
     @GetMapping(value = "/{id:\\d+}/tags")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Retrieve specific tags with the supplied news id")
+    @ApiOperation(value = "Retrieve specific tags with the supplied news id", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved specific tags with the supplied news id"),
-        @ApiResponse(responseCode = "400", description = "The request parameters are invalid"),
-        @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved specific tags with the supplied news id"),
+        @ApiResponse(code = 400, message = "The request parameters are invalid"),
+        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
-    public PageDtoResponse<TagDtoResponse> readTagsByNewsId(@PathVariable
-                                                            @Parameter(name = "id", description = "News id", example = "1")
-                                                            Long id,
-                                                            @Parameter(description = "Page number", example = "1", required = false)
-                                                            @RequestParam(value = "page", defaultValue = "0")
-                                                            int page,
-                                                            @Parameter(description = "Page size", example = "10", required = false)
-                                                            @RequestParam(value = "page-size", defaultValue = "10")
-                                                            int pageSize,
-                                                            @Parameter(description = "Sorting field and sort type", example = "fieldName:sortType", required = false)
-                                                            @RequestParam(value = "sorting", required = false)
-                                                            List<String> sortByAndOrder) {
+    public PageDtoResponse<TagDtoResponse> readTagsByNewsId(@PathVariable Long id,
+                                                            @RequestParam(value = "page", defaultValue = "1") int page,
+                                                            @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
+                                                            @RequestParam(value = "sorting", required = false) List<String> sortByAndOrder) {
         PaginationDtoRequest paginationDtoRequest = PaginationDtoRequest.builder()
             .page(page)
             .pageSize(pageSize)
@@ -188,26 +162,18 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
 
     @GetMapping(value = "/{id:\\d+}/comments")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Retrieve specific comments with the supplied news id")
+    @ApiOperation(value = "Retrieve specific comments with the supplied news id", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved specific comments with the supplied news id"),
-        @ApiResponse(responseCode = "400", description = "The request parameters are invalid"),
-        @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved specific comments with the supplied news id"),
+        @ApiResponse(code = 400, message = "The request parameters are invalid"),
+        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
-    public PageDtoResponse<CommentForNewsDtoResponse> readCommentsByNewsId(@PathVariable
-                                                                           @Parameter(name = "id", description = "News id", example = "1")
-                                                                           Long id,
-                                                                           @Parameter(description = "Page number", example = "1", required = false)
-                                                                           @RequestParam(value = "page", defaultValue = "0")
-                                                                           int page,
-                                                                           @Parameter(description = "Page size", example = "10", required = false)
-                                                                           @RequestParam(value = "page-size", defaultValue = "10")
-                                                                           int pageSize,
-                                                                           @Parameter(description = "Sorting field and sort type", example = "fieldName:sortType", required = false)
-                                                                           @RequestParam(value = "sorting", required = false)
-                                                                           List<String> sortByAndOrder) {
+    public PageDtoResponse<CommentForNewsDtoResponse> readCommentsByNewsId(@PathVariable Long id,
+                                                                           @RequestParam(value = "page", defaultValue = "1") int page,
+                                                                           @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
+                                                                           @RequestParam(value = "sorting", required = false) List<String> sortByAndOrder) {
         PaginationDtoRequest paginationDtoRequest = PaginationDtoRequest.builder()
             .page(page)
             .pageSize(pageSize)
@@ -223,17 +189,15 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
 
     @GetMapping(value = "/{id:\\d+}/author")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Retrieve specific author with the supplied news id")
+    @ApiOperation(value = "Retrieve specific author with the supplied news id", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved specific author with the supplied news id"),
-        @ApiResponse(responseCode = "400", description = "The request parameters are invalid"),
-        @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found"),
-        @ApiResponse(responseCode = "500", description = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved specific author with the supplied news id"),
+        @ApiResponse(code = 400, message = "The request parameters are invalid"),
+        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
-    public AuthorDtoResponse readAuthorByNewsId(@PathVariable
-                                                @Parameter(name = "id", description = "News id", example = "1")
-                                                Long id) {
+    public AuthorDtoResponse readAuthorByNewsId(@PathVariable Long id) {
 
         return AuthorRestController.addHateoasLinksToAuthorDtoResponse(authorService.readByNewsId(id));
     }

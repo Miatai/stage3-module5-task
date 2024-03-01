@@ -14,12 +14,4 @@ dependencies {
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework:spring-tx'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
-
-//    implementation "io.springfox:springfox-boot-starter:$swaggerVersion"
-
-//    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$openApiVersion"
-    implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
-    implementation "org.springdoc:springdoc-openapi-webmvc-core:$openApiVersion"
-    implementation "org.springdoc:springdoc-openapi-hateoas:$openApiVersion"
-
 }
