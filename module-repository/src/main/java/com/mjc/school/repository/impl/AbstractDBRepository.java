@@ -8,12 +8,12 @@ import com.mjc.school.repository.sorting.Sorting;
 import com.mjc.school.repository.sorting.SortOrder;
 import com.mjc.school.repository.filter.SearchCriteria;
 import com.mjc.school.repository.model.BaseEntity;
-import jakarta.persistence.criteria.*;
-import jakarta.persistence.metamodel.EntityType;
+import javax.persistence.criteria.*;
+import javax.persistence.metamodel.EntityType;
 import org.hibernate.PersistentObjectException;
 import org.hibernate.exception.ConstraintViolationException;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;

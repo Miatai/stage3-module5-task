@@ -55,10 +55,10 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
         @ApiResponse(responseCode = "500", description = "Application failed to process the request")
     }
     )
-    public PageDtoResponse<NewsDtoResponse> readAll(@Parameter(description = "Page number", example = "1", required = false)
+    public PageDtoResponse<NewsDtoResponse> readAll(@Parameter(description = "Page number", required = false)
                                                     @RequestParam(value = "page", defaultValue = "0")
                                                     int page,
-                                                    @Parameter(description = "Page size", example = "10", required = false)
+                                                    @Parameter(description = "Page size", required = false)
                                                     @RequestParam(value = "page-size", defaultValue = "10")
                                                     int pageSize,
                                                     @Parameter(description = "Sorting field and sort type", example = "fieldName:sortType", required = false)

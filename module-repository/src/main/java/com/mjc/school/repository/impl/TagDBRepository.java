@@ -7,9 +7,9 @@ import com.mjc.school.repository.model.Tag;
 import com.mjc.school.repository.pagination.Page;
 import com.mjc.school.repository.pagination.Pagination;
 import com.mjc.school.repository.sorting.Sorting;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
