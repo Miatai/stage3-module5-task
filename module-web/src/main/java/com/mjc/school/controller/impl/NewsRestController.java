@@ -93,7 +93,7 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create a news", response = NewsDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully created a news"),
+        @ApiResponse(code = 201, message = "Successfully created a news"),
         @ApiResponse(code = 400, message = "The request parameters are invalid"),
         @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
         @ApiResponse(code = 500, message = "Application failed to process the request")
