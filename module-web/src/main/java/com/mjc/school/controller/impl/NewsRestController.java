@@ -145,16 +145,12 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     )
     public PageDtoResponse<TagDtoResponse> readTagsByNewsId(@PathVariable Long id,
                                                             @RequestParam(value = "page", defaultValue = "1") int page,
-                                                            @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
-                                                            @RequestParam(value = "sorting", required = false) List<String> sortByAndOrder) {
+                                                            @RequestParam(value = "page-size", defaultValue = "10") int pageSize) {
         PaginationDtoRequest paginationDtoRequest = PaginationDtoRequest.builder()
             .page(page)
             .pageSize(pageSize)
             .build();
-        SortingDtoRequest sortingDtoRequest = SortingDtoRequest.builder()
-            .sortByAndOrder(sortByAndOrder)
-            .build();
-        PageDtoResponse<TagDtoResponse> pageDtoResponse = tagService.readByNewsId(id, paginationDtoRequest, sortingDtoRequest);
+        PageDtoResponse<TagDtoResponse> pageDtoResponse = tagService.readByNewsId(id, paginationDtoRequest);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(TagRestController::addHateoasLinksToTagDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;
@@ -204,7 +200,7 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
 
     static NewsDtoResponse addHateoasLinksToNewsDtoResponse(NewsDtoResponse dtoResponse) {
         dtoResponse.add(linkTo(methodOn(NewsRestController.class).readById(dtoResponse.getId())).withSelfRel());
-        dtoResponse.add(linkTo(methodOn(NewsRestController.class).readTagsByNewsId(dtoResponse.getId(), 1, 10, Collections.emptyList())).withRel("tagsNames"));
+        dtoResponse.add(linkTo(methodOn(NewsRestController.class).readTagsByNewsId(dtoResponse.getId(), 1, 10)).withRel("tagsNames"));
         dtoResponse.add(linkTo(methodOn(NewsRestController.class).readCommentsByNewsId(dtoResponse.getId(),
             1, 10, Collections.emptyList())).withRel("comments"));
         dtoResponse.add(linkTo(methodOn(NewsRestController.class).readAuthorByNewsId(dtoResponse.getId())).withRel("authorName"));

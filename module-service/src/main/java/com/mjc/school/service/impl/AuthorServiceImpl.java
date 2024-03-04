@@ -12,6 +12,7 @@ import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
 import com.mjc.school.service.mapper.AuthorMapper;
 import com.mjc.school.service.validator.Valid;
+import com.mjc.school.service.validator.ValidFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +54,7 @@ public class AuthorServiceImpl implements AuthorService {
             .readById(id)
             .map(mapper::modelToDto)
             .orElseThrow(
-                () -> new NotFoundException(AUTHOR_ID_DOES_NOT_EXIST, id.toString()));
+                () -> new NotFoundException(AUTHOR_ID_DOES_NOT_EXIST, new String[]{id.toString()}));
     }
 
     @Override
@@ -64,7 +65,7 @@ public class AuthorServiceImpl implements AuthorService {
             model = authorRepository.create(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException e) {
-            throw new ResourceConflictServiceException(AUTHOR_CONFLICT, e.getMessage());
+            throw new ResourceConflictServiceException(AUTHOR_CONFLICT, new String[]{e.getMessage()});
         }
     }
 
@@ -76,7 +77,7 @@ public class AuthorServiceImpl implements AuthorService {
             model = authorRepository.update(model);
             return mapper.modelToDto(model);
         } else {
-            throw new NotFoundException(AUTHOR_ID_DOES_NOT_EXIST, id.toString());
+            throw new NotFoundException(AUTHOR_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 
@@ -86,7 +87,7 @@ public class AuthorServiceImpl implements AuthorService {
         if (authorRepository.existById(id)) {
             authorRepository.deleteById(id);
         } else {
-            throw new NotFoundException(AUTHOR_ID_DOES_NOT_EXIST,  id.toString());
+            throw new NotFoundException(AUTHOR_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 
@@ -96,12 +97,11 @@ public class AuthorServiceImpl implements AuthorService {
         return authorRepository.readByNewsId(newsId)
             .map(mapper::modelToDto)
             .orElseThrow(
-                () -> new NotFoundException(AUTHOR_DOES_NOT_EXIST_FOR_NEWS_ID, newsId.toString()));
+                () -> new NotFoundException(AUTHOR_DOES_NOT_EXIST_FOR_NEWS_ID, new String[]{newsId.toString()}));
     }
 
     @Override
-    public PageDtoResponse<AuthorWithNewsCountDtoResponse> readWithNewsCount(@Valid PaginationDtoRequest paginationDtoRequest,
-                                                                             SortingDtoRequest sortingDtoRequest) {
+    public PageDtoResponse<AuthorWithNewsCountDtoResponse> readWithNewsCount(@Valid PaginationDtoRequest paginationDtoRequest) {
         Page<AuthorWithNewsCount> modelPage = authorRepository.
             readWithNewsCount(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()));
         List<AuthorWithNewsCountDtoResponse> dtoResponses = modelPage.entities().stream()

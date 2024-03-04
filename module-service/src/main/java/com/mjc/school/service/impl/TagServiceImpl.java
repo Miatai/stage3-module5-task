@@ -1,5 +1,6 @@
 package com.mjc.school.service.impl;
 
+import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.TagRepository;
 import com.mjc.school.repository.exception.EntityConflictRepositoryException;
 import com.mjc.school.repository.pagination.Page;
@@ -9,6 +10,7 @@ import com.mjc.school.service.TagService;
 import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
+import com.mjc.school.service.exceptions.ServiceErrorCode;
 import com.mjc.school.service.mapper.TagMapper;
 import com.mjc.school.service.validator.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +26,15 @@ import static com.mjc.school.service.exceptions.ServiceErrorCode.TAG_ID_DOES_NOT
 public class TagServiceImpl implements TagService {
     private final TagMapper mapper;
     private final TagRepository tagRepository;
+    private final NewsRepository newsRepository;
 
     @Autowired
-    public TagServiceImpl(
-        final TagRepository tagRepository,
-        final TagMapper mapper) {
+    public TagServiceImpl(final TagRepository tagRepository,
+                          final TagMapper mapper,
+                          final NewsRepository newsRepository) {
         this.tagRepository = tagRepository;
         this.mapper = mapper;
+        this.newsRepository = newsRepository;
     }
 
     @Override
@@ -53,7 +57,7 @@ public class TagServiceImpl implements TagService {
             .readById(id)
             .map(mapper::modelToDto)
             .orElseThrow(
-                () -> new NotFoundException(TAG_ID_DOES_NOT_EXIST, id.toString()));
+                () -> new NotFoundException(TAG_ID_DOES_NOT_EXIST, new String[]{id.toString()}));
     }
 
     @Override
@@ -64,7 +68,7 @@ public class TagServiceImpl implements TagService {
             model = tagRepository.create(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException e) {
-            throw new ResourceConflictServiceException(TAG_CONFLICT, e.getMessage());
+            throw new ResourceConflictServiceException(TAG_CONFLICT, new String[]{e.getMessage()});
         }
     }
 
@@ -76,7 +80,7 @@ public class TagServiceImpl implements TagService {
             model = tagRepository.update(model);
             return mapper.modelToDto(model);
         } else {
-            throw new NotFoundException(TAG_ID_DOES_NOT_EXIST, id.toString());
+            throw new NotFoundException(TAG_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 
@@ -86,15 +90,17 @@ public class TagServiceImpl implements TagService {
         if (tagRepository.existById(id)) {
             tagRepository.deleteById(id);
         } else {
-            throw new NotFoundException(TAG_ID_DOES_NOT_EXIST, id.toString());
+            throw new NotFoundException(TAG_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageDtoResponse<TagDtoResponse> readByNewsId(Long newsId,
-                                                        @Valid PaginationDtoRequest paginationDtoRequest,
-                                                        SortingDtoRequest sortingDtoRequest) {
+                                                        @Valid PaginationDtoRequest paginationDtoRequest) {
+        if(!newsRepository.existById(newsId)){
+            throw new NotFoundException(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST, new String[]{newsId.toString()});
+        }
         Page<Tag> modelPage = tagRepository.readByNewsId(newsId,
             new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
             null);

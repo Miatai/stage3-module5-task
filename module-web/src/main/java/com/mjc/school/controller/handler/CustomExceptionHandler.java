@@ -11,6 +11,7 @@ import java.util.Locale;
 
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e, Locale locale) {
         return ResponseEntity
@@ -33,26 +34,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ValidatorException.class)
     public ResponseEntity<ErrorResponse> handleValidatorException(ValidatorException e, Locale locale) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse.builder()
-                .errorCode(e.getErrorCode())
-                .errorMessage(e.getLocalizedMessage(locale))
-                .build());
-    }
-
-    @ExceptionHandler(SortException.class)
-    public ResponseEntity<ErrorResponse> handleSortException(SortException e, Locale locale) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse.builder()
-                .errorCode(e.getErrorCode())
-                .errorMessage(e.getLocalizedMessage(locale))
-                .build());
-    }
-
-    @ExceptionHandler(FilterException.class)
-    public ResponseEntity<ErrorResponse> handleFilterException(FilterException e, Locale locale) {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.builder()

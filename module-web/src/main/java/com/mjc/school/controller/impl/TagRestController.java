@@ -47,13 +47,7 @@ public class TagRestController implements BaseController<TagDtoRequest, TagDtoRe
             .page(page)
             .pageSize(pageSize)
             .build();
-        SortingDtoRequest sortingDtoRequest = SortingDtoRequest.builder()
-            .sortByAndOrder(sortByAndOrder)
-            .build();
-        SearchFilterDtoRequest searchFilterDtoRequest = SearchFilterDtoRequest.builder()
-            .filters(filters)
-            .build();
-        PageDtoResponse<TagDtoResponse> pageDtoResponse = tagService.readAll(paginationDtoRequest, sortingDtoRequest, searchFilterDtoRequest);
+        PageDtoResponse<TagDtoResponse> pageDtoResponse = tagService.readAll(paginationDtoRequest, null, null);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(TagRestController::addHateoasLinksToTagDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;

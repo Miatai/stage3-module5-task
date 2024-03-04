@@ -4,11 +4,13 @@ import org.springframework.stereotype.Component;
 
 import com.mjc.school.service.validator.constraint.Size;
 
+import java.lang.annotation.Annotation;
+
 @Component
 public class SizeConstraintChecker implements ConstraintChecker<Size> {
 
     @Override
-    public boolean check(final Object value, final Size constraint) {
+    public boolean check(final Object value, final Size constraint, Annotation mainAnnotation) {
         if (value instanceof CharSequence string) {
             return (constraint.min() < 0 || constraint.min() <= string.length())
                     && (constraint.max() < 0 || constraint.max() >= string.length());

@@ -51,10 +51,7 @@ public class CommentRestController implements BaseController<CommentDtoRequest, 
         SortingDtoRequest sortingDtoRequest = SortingDtoRequest.builder()
             .sortByAndOrder(sortByAndOrder)
             .build();
-        SearchFilterDtoRequest searchFilterDtoRequest = SearchFilterDtoRequest.builder()
-            .filters(filters)
-            .build();
-        PageDtoResponse<CommentDtoResponse> pageDtoResponse = commentService.readAll(paginationDtoRequest, sortingDtoRequest, searchFilterDtoRequest);
+        PageDtoResponse<CommentDtoResponse> pageDtoResponse = commentService.readAll(paginationDtoRequest, sortingDtoRequest, null);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(CommentRestController::addHateoasLinksToCommentDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;

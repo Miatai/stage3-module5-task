@@ -17,7 +17,7 @@ import com.mjc.school.service.filter.NewsSearchFilterMapper;
 import com.mjc.school.service.sort.NewsSortingMapper;
 import com.mjc.school.service.mapper.NewsMapper;
 import com.mjc.school.service.validator.Valid;
-import com.mjc.school.service.validator.constraint.SortAndOrder;
+import com.mjc.school.service.validator.ValidFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,8 +55,11 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageDtoResponse<NewsDtoResponse> readAll(@Valid PaginationDtoRequest paginationDtoRequest,
+    public PageDtoResponse<NewsDtoResponse> readAll(@Valid
+                                                    PaginationDtoRequest paginationDtoRequest,
+                                                    @ValidFields(fields = {"createdDate", "lastUpdatedDate"})
                                                     SortingDtoRequest sortingDtoRequest,
+                                                    @ValidFields(fields = {"title", "content", "tags.name", "tags.id", "author.name"})
                                                     SearchFilterDtoRequest searchFilterDtoRequest) {
         Page<News> modelPage = newsRepository.readAll(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
             newsSortingMapper.map(sortingDtoRequest),
@@ -72,7 +75,7 @@ public class NewsServiceImpl implements NewsService {
             .readById(id)
             .map(mapper::modelToDto)
             .orElseThrow(
-                () -> new NotFoundException(NEWS_ID_DOES_NOT_EXIST, id.toString()));
+                () -> new NotFoundException(NEWS_ID_DOES_NOT_EXIST, new String[]{id.toString()}));
     }
 
     @Override
@@ -85,7 +88,7 @@ public class NewsServiceImpl implements NewsService {
             model = newsRepository.create(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException e) {
-            throw new ResourceConflictServiceException(NEWS_CONFLICT, e.getMessage());
+            throw new ResourceConflictServiceException(NEWS_CONFLICT, new String[]{e.getMessage()});
         }
     }
 
@@ -93,7 +96,7 @@ public class NewsServiceImpl implements NewsService {
     @Transactional
     public NewsDtoResponse update(Long id, @Valid NewsDtoUpdateRequest updateRequest) {
         if (!newsRepository.existById(id)) {
-            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, id.toString());
+            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
         createNonExistentAuthor(updateRequest.authorName());
         createNonExistentTags(updateRequest.tagsNames());
@@ -110,7 +113,7 @@ public class NewsServiceImpl implements NewsService {
         if (newsRepository.existById(id)) {
             newsRepository.deleteById(id);
         } else {
-            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, id.toString());
+            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 

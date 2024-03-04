@@ -8,9 +8,6 @@ import java.util.List;
 
 @Component
 public class NewsSearchFilterMapper extends BaseSearchFilterMapper<SearchFilterDtoRequest> {
-    public NewsSearchFilterMapper() {
-        validFilterFields = List.of("title", "content", "tags.name", "tags.id", "author.name");
-    }
 
     @Override
     public List<SearchCriteria> map(SearchFilterDtoRequest searchFilterRequest) {

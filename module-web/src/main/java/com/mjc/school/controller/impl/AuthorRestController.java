@@ -36,7 +36,7 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
     @ApiOperation(value = "View all authors", response = PageDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved all authors"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+        @ApiResponse(code = 400, message = "Accessing the resource you were trying to reach is forbidden"),
         @ApiResponse(code = 500, message = "Application failed to process the request")
     })
     public PageDtoResponse<AuthorDtoResponse> readAll(@RequestParam(value = "page", defaultValue = "1") int page,
@@ -48,13 +48,7 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
             .page(page)
             .pageSize(pageSize)
             .build();
-        SortingDtoRequest sortingDtoRequest = SortingDtoRequest.builder()
-            .sortByAndOrder(sortByAndOrder)
-            .build();
-        SearchFilterDtoRequest searchFilterDtoRequest = SearchFilterDtoRequest.builder()
-            .filters(filters)
-            .build();
-        PageDtoResponse<AuthorDtoResponse> pageDtoResponse = authorService.readAll(paginationDtoRequest, sortingDtoRequest, searchFilterDtoRequest);
+        PageDtoResponse<AuthorDtoResponse> pageDtoResponse = authorService.readAll(paginationDtoRequest, null, null);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(AuthorRestController::addHateoasLinksToAuthorDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;
@@ -126,18 +120,14 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
     }
     )
     public PageDtoResponse<AuthorWithNewsCountDtoResponse> readWithNewsCount(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                                             @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
-                                                                             @RequestParam(value = "sorting", required = false) List<String> sortByAndOrder) {
+                                                                             @RequestParam(value = "page-size", defaultValue = "10") int pageSize) {
 
 
         PaginationDtoRequest paginationDtoRequest = PaginationDtoRequest.builder()
             .page(page)
             .pageSize(pageSize)
             .build();
-        SortingDtoRequest sortingDtoRequest = SortingDtoRequest.builder()
-            .sortByAndOrder(sortByAndOrder)
-            .build();
-        PageDtoResponse<AuthorWithNewsCountDtoResponse> pageDtoResponse = authorService.readWithNewsCount(paginationDtoRequest, sortingDtoRequest);
+        PageDtoResponse<AuthorWithNewsCountDtoResponse> pageDtoResponse = authorService.readWithNewsCount(paginationDtoRequest);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(AuthorRestController::addHateoasLinksToAuthorDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;

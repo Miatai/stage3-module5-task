@@ -1,21 +1,18 @@
 package com.mjc.school.service.validator;
 
-import static java.util.stream.Collectors.toMap;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
+import com.mjc.school.service.exceptions.ServiceErrorCode;
+import com.mjc.school.service.exceptions.ValidatorException;
+import com.mjc.school.service.validator.checker.ConstraintChecker;
+import com.mjc.school.service.validator.constraint.Constraint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mjc.school.service.validator.checker.ConstraintChecker;
-import com.mjc.school.service.validator.constraint.Constraint;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toMap;
 
 @Component
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -28,28 +25,28 @@ public class ValidatorImpl implements Validator {
         this.checkersMap = checkers.stream().collect(toMap(ConstraintChecker::getType, Function.identity()));
     }
 
-    public Set<ConstraintViolation> validate(final Object object) {
+    public List<String> validate(final Object object, Annotation mainAnnotation) {
         if (object == null) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
-        var violations = new HashSet<ConstraintViolation>();
+        var violations = new ArrayList<String>();
         for (var declaredField : object.getClass().getDeclaredFields()) {
-            validateField(violations, declaredField, object);
+            validateField(violations, declaredField, object, mainAnnotation);
         }
         return violations;
     }
 
-    private void validateObject(Set<ConstraintViolation> violations, final Object object) {
+    private void validateObject(List<String> violations, final Object object, Annotation mainAnnotation) {
         if (object == null) {
             return;
         }
         for (var declaredField : object.getClass().getDeclaredFields()) {
-            validateField(violations, declaredField, object);
+            validateField(violations, declaredField, object, mainAnnotation);
         }
     }
 
     private void validateField(
-            final Set<ConstraintViolation> violations, final Field field, final Object instance) {
+            final List<String> violations, final Field field, final Object instance, Annotation mainAnnotation) {
         for (var declaredAnnotation : field.getDeclaredAnnotations()) {
             var annotationType = declaredAnnotation.annotationType();
             if (annotationType.isAnnotationPresent(Constraint.class)) {
@@ -57,13 +54,14 @@ public class ValidatorImpl implements Validator {
                     if (field.trySetAccessible() && field.canAccess(instance)) {
                         var value = field.get(instance);
                         var checker = checkersMap.get(annotationType);
-                        if (checker != null && !checker.check(value, annotationType.cast(declaredAnnotation))) {
-                            violations.add(
-                                    new ConstraintViolation(
-                                            "Constraint '%s' violated for the value '%s' of field '%s'"
-                                                    .formatted(annotationType.getSimpleName(), value, field.getName())));
+                        if (checker != null && !checker.check(value, annotationType.cast(declaredAnnotation), mainAnnotation)) {
+//                            throw new ValidatorException(ServiceErrorCode.INVALID_SORT_AND_ORDER_FIELD_CONSTRAINT, new String[]{annotationType.getSimpleName(),value.toString(), field.getName()});
+                            //change this to throwing exception. and change method's return type to void??
+                            violations.add(annotationType.getSimpleName());
+                            violations.add(value.toString());
+                            violations.add(field.getName());
                         }
-                        validateObject(violations, value);
+                        validateObject(violations, value, mainAnnotation);
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

@@ -5,11 +5,11 @@ import org.springframework.context.MessageSource;
 import java.util.Locale;
 
 public class ServiceException extends RuntimeException {
-    private final ServiceErrorCode serviceErrorCode;
-    private final String cause;
-    private final MessageSource messageSource;
+    protected final ServiceErrorCode serviceErrorCode;
+    protected final String[] cause;
+    protected final MessageSource messageSource;
 
-    public ServiceException(ServiceErrorCode serviceErrorCode, final String cause) {
+    public ServiceException(ServiceErrorCode serviceErrorCode, final String[] cause) {
         this.serviceErrorCode = serviceErrorCode;
         this.cause = cause;
         this.messageSource = ServiceExceptionMessageSource.getMessageSource();
@@ -29,6 +29,6 @@ public class ServiceException extends RuntimeException {
         if(cause == null){
             return message;
         }
-        return String.format(message, cause);
+        return String.format(message, (Object[]) cause);
     }
 }

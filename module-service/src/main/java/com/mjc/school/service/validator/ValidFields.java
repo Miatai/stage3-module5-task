@@ -1,4 +1,4 @@
-package com.mjc.school.service.validator.constraint;
+package com.mjc.school.service.validator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-@Constraint
-public @interface SearchCriteria {
+@Target(ElementType.PARAMETER)
+public @interface ValidFields {
+    String[] fields();
 }

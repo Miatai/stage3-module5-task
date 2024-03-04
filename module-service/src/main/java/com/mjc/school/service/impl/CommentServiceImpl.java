@@ -10,9 +10,11 @@ import com.mjc.school.service.CommentService;
 import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
+import com.mjc.school.service.exceptions.ServiceErrorCode;
 import com.mjc.school.service.sort.CommentSortingMapper;
 import com.mjc.school.service.mapper.CommentMapper;
 import com.mjc.school.service.validator.Valid;
+import com.mjc.school.service.validator.ValidFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public PageDtoResponse<CommentDtoResponse> readAll(@Valid PaginationDtoRequest paginationDtoRequest,
-                                                       SortingDtoRequest sortingDtoRequest,
+                                                       @ValidFields(fields = {"createdDate", "lastUpdatedDate"}) SortingDtoRequest sortingDtoRequest,
                                                        SearchFilterDtoRequest searchFilterDtoRequest) {
         Page<Comment> modelPage = commentRepository.readAll(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
             commentSortingMapper.map(sortingDtoRequest),
@@ -59,21 +61,21 @@ public class CommentServiceImpl implements CommentService {
             .readById(id)
             .map(mapper::modelToDto)
             .orElseThrow(
-                () -> new NotFoundException(COMMENT_ID_DOES_NOT_EXIST,  id.toString()));
+                () -> new NotFoundException(COMMENT_ID_DOES_NOT_EXIST, new String[]{id.toString()}));
     }
 
     @Override
     @Transactional
     public CommentDtoResponse create(@Valid CommentDtoRequest createRequest) {
         if (!newsRepository.existById(createRequest.newsId())) {
-            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, createRequest.newsId().toString());
+            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, new String[]{createRequest.newsId().toString()});
         }
         try {
             Comment model = mapper.dtoToModel(createRequest);
             model = commentRepository.create(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException e) {
-            throw new ResourceConflictServiceException(COMMENT_CONFLICT, e.getMessage());
+            throw new ResourceConflictServiceException(COMMENT_CONFLICT, new String[]{e.getMessage()});
         }
     }
 
@@ -85,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
             model = commentRepository.update(model);
             return mapper.modelToDto(model);
         } else {
-            throw new NotFoundException(COMMENT_ID_DOES_NOT_EXIST, id.toString());
+            throw new NotFoundException(COMMENT_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 
@@ -95,7 +97,7 @@ public class CommentServiceImpl implements CommentService {
         if (commentRepository.existById(id)) {
             commentRepository.deleteById(id);
         } else {
-            throw new NotFoundException(COMMENT_ID_DOES_NOT_EXIST,  id.toString());
+            throw new NotFoundException(COMMENT_ID_DOES_NOT_EXIST, new String[]{id.toString()});
         }
     }
 
@@ -103,7 +105,10 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public PageDtoResponse<CommentForNewsDtoResponse> readByNewsId(Long newsId,
                                                                    @Valid PaginationDtoRequest paginationDtoRequest,
-                                                                   SortingDtoRequest sortingDtoRequest) {
+                                                                   @ValidFields(fields = {"createdDate", "lastUpdatedDate"}) SortingDtoRequest sortingDtoRequest) {
+        if(!newsRepository.existById(newsId)){
+            throw new NotFoundException(NEWS_ID_DOES_NOT_EXIST, new String[]{newsId.toString()});
+        }
         Page<Comment> modelPage = commentRepository.readByNewsId(newsId,
             new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
             commentSortingMapper.map(sortingDtoRequest));

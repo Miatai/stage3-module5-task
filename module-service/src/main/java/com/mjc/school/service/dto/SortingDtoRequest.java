@@ -1,6 +1,6 @@
 package com.mjc.school.service.dto;
 
-import com.mjc.school.service.validator.constraint.SortAndOrder;
+import com.mjc.school.service.validator.constraint.SortFieldsAndOrder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @Builder
 public class SortingDtoRequest {
-    @SortAndOrder
+    @SortFieldsAndOrder
     private List<String> sortByAndOrder = new ArrayList<>();
 
     public SortingDtoRequest(@Nullable List<String> sortByAndOrder) {

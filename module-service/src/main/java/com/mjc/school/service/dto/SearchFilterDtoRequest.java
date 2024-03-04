@@ -1,6 +1,6 @@
 package com.mjc.school.service.dto;
 
-import com.mjc.school.service.validator.constraint.SearchCriteria;
+import com.mjc.school.service.validator.constraint.FilterFields;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @Builder
 public class SearchFilterDtoRequest {
-    @SearchCriteria
+    @FilterFields
     private List<String> filters = new ArrayList<>();
 
     public SearchFilterDtoRequest(@Nullable List<String> filters) {
