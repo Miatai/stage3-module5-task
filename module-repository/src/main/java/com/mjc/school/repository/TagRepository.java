@@ -9,6 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TagRepository extends BaseRepository<Tag, Long> {
-    Page<Tag> readByNewsId(Long newsId, Pagination pagination, List<Sorting> sorting);
+    Page<Tag> readByNewsId(Long newsId, Pagination pagination);
     Optional<Tag> readByName(String name);
 }

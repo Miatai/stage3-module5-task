@@ -31,15 +31,13 @@ public class TagDBRepository extends AbstractDBRepository<Tag, Long> implements 
     }
 
     @Override
-    public Page<Tag> readByNewsId(Long newsId, Pagination pagination, List<Sorting> sorting) {
+    public Page<Tag> readByNewsId(Long newsId, Pagination pagination) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
         final Root<Tag> root = criteriaQuery.from(Tag.class);
         Join<News, Tag> join = root.join("news");
 
         criteriaQuery.select(root).where(criteriaBuilder.equal(join.get("id"), newsId));
-
-        setOrder(sorting, criteriaBuilder, criteriaQuery, root);
 
         final int currentPage = pagination.page();
         final int pageSize = pagination.pageSize();

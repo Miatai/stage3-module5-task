@@ -102,8 +102,7 @@ public class TagServiceImpl implements TagService {
             throw new NotFoundException(ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST, new String[]{newsId.toString()});
         }
         Page<Tag> modelPage = tagRepository.readByNewsId(newsId,
-            new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
-            null);
+            new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()));
         List<TagDtoResponse> responseDtoList = mapper.modelListToDtoList(modelPage.entities());
         return new PageDtoResponse<>(responseDtoList, modelPage.currentPage(), modelPage.pageCount());
     }
