@@ -11,8 +11,10 @@ import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
 import com.mjc.school.service.exceptions.ServiceErrorCode;
+import com.mjc.school.service.filter.TagSearchFilterMapper;
 import com.mjc.school.service.mapper.TagMapper;
 import com.mjc.school.service.validator.Valid;
+import com.mjc.school.service.validator.ValidFields;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,25 +29,29 @@ public class TagServiceImpl implements TagService {
     private final TagMapper mapper;
     private final TagRepository tagRepository;
     private final NewsRepository newsRepository;
+    private final TagSearchFilterMapper searchFilterMapper;
 
     @Autowired
     public TagServiceImpl(final TagRepository tagRepository,
                           final TagMapper mapper,
-                          final NewsRepository newsRepository) {
+                          final NewsRepository newsRepository,
+                          final TagSearchFilterMapper searchFilterMapper) {
         this.tagRepository = tagRepository;
         this.mapper = mapper;
         this.newsRepository = newsRepository;
+        this.searchFilterMapper = searchFilterMapper;
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageDtoResponse<TagDtoResponse> readAll(@Valid PaginationDtoRequest paginationDtoRequest,
                                                    SortingDtoRequest sortingDtoRequest,
+                                                   @ValidFields(fields = "name")
                                                    SearchFilterDtoRequest searchFilterDtoRequest) {
 
         Page<Tag> modelPage = tagRepository.readAll(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
             null,
-            null);
+            searchFilterMapper.map(searchFilterDtoRequest));
         List<TagDtoResponse> responseDtoList = mapper.modelListToDtoList(modelPage.entities());
         return new PageDtoResponse<>(responseDtoList, modelPage.currentPage(), modelPage.pageCount());
     }

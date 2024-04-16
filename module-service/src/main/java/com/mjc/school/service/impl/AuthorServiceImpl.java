@@ -10,6 +10,7 @@ import com.mjc.school.service.AuthorService;
 import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
+import com.mjc.school.service.filter.AuthorSearchFilterMapper;
 import com.mjc.school.service.mapper.AuthorMapper;
 import com.mjc.school.service.validator.Valid;
 import com.mjc.school.service.validator.ValidFields;
@@ -26,23 +27,27 @@ import static com.mjc.school.service.exceptions.ServiceErrorCode.*;
 public class AuthorServiceImpl implements AuthorService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper mapper;
+    private final AuthorSearchFilterMapper searchFilterMapper;
 
 
     @Autowired
     public AuthorServiceImpl(final AuthorRepository authorRepository,
-                             final AuthorMapper mapper) {
+                             final AuthorMapper mapper,
+                             final AuthorSearchFilterMapper searchFilterMapper) {
         this.authorRepository = authorRepository;
         this.mapper = mapper;
+        this.searchFilterMapper = searchFilterMapper;
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageDtoResponse<AuthorDtoResponse> readAll(@Valid PaginationDtoRequest paginationDtoRequest,
                                                       SortingDtoRequest sortingDtoRequest,
+                                                      @ValidFields(fields = "name")
                                                       SearchFilterDtoRequest searchFilterDtoRequest) {
         Page<Author> modelPage = authorRepository.readAll(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
             null,
-            null);
+            searchFilterMapper.map(searchFilterDtoRequest));
         List<AuthorDtoResponse> responseDtoList = mapper.modelListToDtoList(modelPage.entities());
         return new PageDtoResponse<>(responseDtoList, modelPage.currentPage(), modelPage.pageCount());
     }

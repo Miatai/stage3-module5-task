@@ -21,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/api/v1/comments", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(produces = "application/json", value = "Operations for creating, patching, retrieving and deleting comments in the application")
+@Api(tags = "Comment API", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CommentRestController implements BaseController<CommentDtoRequest, CommentDtoResponse, Long, CommentDtoRequest> {
     private final CommentService commentService;
 
@@ -35,9 +35,7 @@ public class CommentRestController implements BaseController<CommentDtoRequest, 
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "View all comments", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved all comments"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved all comments")
     })
     public PageDtoResponse<CommentDtoResponse> readAll(@RequestParam(value = "page", defaultValue = "1") int page,
                                                        @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
@@ -63,9 +61,7 @@ public class CommentRestController implements BaseController<CommentDtoRequest, 
     @ApiOperation(value = "Retrieve specific comment with the supplied id", response = CommentDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved the comment with the supplied id"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 404, message = "Comment with the supplied id not found"),
     }
     )
     public CommentDtoResponse readById(@PathVariable Long id) {
@@ -73,28 +69,23 @@ public class CommentRestController implements BaseController<CommentDtoRequest, 
     }
 
     @Override
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create a comment", response = CommentDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Successfully created a comment"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 201, message = "Successfully created comment")
     })
     public CommentDtoResponse create(@RequestBody CommentDtoRequest createRequest) {
         return addHateoasLinksToCommentDtoResponse(commentService.create(createRequest));
     }
 
     @Override
-    @PatchMapping(value = "/{id:\\d+}")
+    @PatchMapping(value = "/{id:\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Patch comment information", response = CommentDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully patched comment information"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully updated comment with the supplied id"),
+        @ApiResponse(code = 404, message = "Comment with the supplied id not found")
     }
     )
     public CommentDtoResponse update(@PathVariable Long id,
@@ -107,9 +98,8 @@ public class CommentRestController implements BaseController<CommentDtoRequest, 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiOperation(value = "Deletes specific comment with the supplied id", response = CommentDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Successfully deleted the specific comment"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 204, message = "Successfully deleted comment with the supplied id"),
+        @ApiResponse(code = 404, message = "Comment with the supplied id not found")
     }
     )
     public void deleteById(@PathVariable Long id) {

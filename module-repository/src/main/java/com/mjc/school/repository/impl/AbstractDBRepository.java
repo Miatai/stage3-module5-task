@@ -57,7 +57,6 @@ public abstract class AbstractDBRepository<T extends BaseEntity<K>, K> implement
         TypedQuery<T> typedQuery = entityManager.createQuery(criteriaQuery);
         typedQuery.setFirstResult((currentPage - 1) * pageSize);
         typedQuery.setMaxResults(pageSize);
-
         return new Page<T>(typedQuery.getResultList(), currentPage, countPages(searchCriteria, pageSize));
     }
 
@@ -147,4 +146,5 @@ public abstract class AbstractDBRepository<T extends BaseEntity<K>, K> implement
     public T getReference(K id) {
         return entityManager.getReference(this.entityClass, id);
     }
+
 }

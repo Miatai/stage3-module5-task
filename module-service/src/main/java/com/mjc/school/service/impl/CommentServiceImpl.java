@@ -10,7 +10,6 @@ import com.mjc.school.service.CommentService;
 import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
-import com.mjc.school.service.exceptions.ServiceErrorCode;
 import com.mjc.school.service.sort.CommentSortingMapper;
 import com.mjc.school.service.mapper.CommentMapper;
 import com.mjc.school.service.validator.Valid;
@@ -28,17 +27,17 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final NewsRepository newsRepository;
     private final CommentMapper mapper;
-    private final CommentSortingMapper commentSortingMapper;
+    private final CommentSortingMapper sortingMapper;
 
     @Autowired
     public CommentServiceImpl(final CommentRepository commentRepository,
                               final CommentMapper mapper,
                               final NewsRepository newsRepository,
-                              final CommentSortingMapper commentSortingMapper) {
+                              final CommentSortingMapper sortingMapper) {
         this.commentRepository = commentRepository;
         this.mapper = mapper;
         this.newsRepository = newsRepository;
-        this.commentSortingMapper = commentSortingMapper;
+        this.sortingMapper = sortingMapper;
     }
 
 
@@ -48,7 +47,7 @@ public class CommentServiceImpl implements CommentService {
                                                        @ValidFields(fields = {"createdDate", "lastUpdatedDate"}) SortingDtoRequest sortingDtoRequest,
                                                        SearchFilterDtoRequest searchFilterDtoRequest) {
         Page<Comment> modelPage = commentRepository.readAll(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
-            commentSortingMapper.map(sortingDtoRequest),
+            sortingMapper.map(sortingDtoRequest),
             null);
         List<CommentDtoResponse> responseDtoList = mapper.modelListToDtoList(modelPage.entities());
         return new PageDtoResponse<>(responseDtoList, modelPage.currentPage(), modelPage.pageCount());
@@ -111,7 +110,7 @@ public class CommentServiceImpl implements CommentService {
         }
         Page<Comment> modelPage = commentRepository.readByNewsId(newsId,
             new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
-            commentSortingMapper.map(sortingDtoRequest));
+            sortingMapper.map(sortingDtoRequest));
         List<CommentForNewsDtoResponse> responseDtoList = mapper.modelListToForNewsDtoList(modelPage.entities());
         return new PageDtoResponse<>(responseDtoList, modelPage.currentPage(), modelPage.pageCount());
     }

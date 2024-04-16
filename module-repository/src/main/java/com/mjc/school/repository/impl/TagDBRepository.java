@@ -6,7 +6,6 @@ import com.mjc.school.repository.model.News;
 import com.mjc.school.repository.model.Tag;
 import com.mjc.school.repository.pagination.Page;
 import com.mjc.school.repository.pagination.Pagination;
-import com.mjc.school.repository.sorting.Sorting;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
@@ -27,7 +26,14 @@ public class TagDBRepository extends AbstractDBRepository<Tag, Long> implements 
 
     @Override
     protected void getPredicateBySearchCriteria(List<SearchCriteria> searchCriteria, CriteriaBuilder criteriaBuilder, Root<Tag> root, List<Predicate> predicates) {
-
+        if(searchCriteria==null || searchCriteria.isEmpty()){
+            return;
+        }
+        for (SearchCriteria criteria : searchCriteria) {
+            if(criteria.getField().equals("name")){
+                predicates.add(criteriaBuilder.like(root.get(criteria.getField()), "%" + criteria.getValue().toString().trim() + "%"));
+            }
+        }
     }
 
     @Override

@@ -35,7 +35,14 @@ public class AuthorDBRepository extends AbstractDBRepository<Author, Long> imple
 
     @Override
     protected void getPredicateBySearchCriteria(List<SearchCriteria> searchCriteria, CriteriaBuilder criteriaBuilder, Root<Author> root, List<Predicate> predicates) {
-
+        if(searchCriteria==null || searchCriteria.isEmpty()){
+            return;
+        }
+        for (SearchCriteria criteria : searchCriteria) {
+            if(criteria.getField().equals("name")){
+                predicates.add(criteriaBuilder.like(root.get(criteria.getField()), "%" + criteria.getValue().toString().trim() + "%"));
+            }
+        }
     }
 
     @Override

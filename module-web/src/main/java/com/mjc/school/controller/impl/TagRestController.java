@@ -20,7 +20,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/api/v1/tags", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(produces = "application/json", value = "Operations for creating, patching, retrieving and deleting tags in the application")
+@Api(tags = "Tag API", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TagRestController implements BaseController<TagDtoRequest, TagDtoResponse, Long, TagDtoRequest> {
     private final TagService tagService;
 
@@ -34,9 +34,7 @@ public class TagRestController implements BaseController<TagDtoRequest, TagDtoRe
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "View all tags", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved all tags"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved all tags")
     })
     public PageDtoResponse<TagDtoResponse> readAll(@RequestParam(value = "page", defaultValue = "1") int page,
                                                    @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
@@ -47,7 +45,10 @@ public class TagRestController implements BaseController<TagDtoRequest, TagDtoRe
             .page(page)
             .pageSize(pageSize)
             .build();
-        PageDtoResponse<TagDtoResponse> pageDtoResponse = tagService.readAll(paginationDtoRequest, null, null);
+        SearchFilterDtoRequest searchFilterDtoRequest = SearchFilterDtoRequest.builder()
+            .filters(filters)
+            .build();
+        PageDtoResponse<TagDtoResponse> pageDtoResponse = tagService.readAll(paginationDtoRequest, null, searchFilterDtoRequest);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(TagRestController::addHateoasLinksToTagDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;
@@ -59,37 +60,30 @@ public class TagRestController implements BaseController<TagDtoRequest, TagDtoRe
     @ApiOperation(value = "Retrieve specific tag with the supplied id", response = TagDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved the tag with the supplied id"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 404, message = "Tag with the supplied id not found")
     })
     public TagDtoResponse readById(@PathVariable Long id) {
         return addHateoasLinksToTagDtoResponse(tagService.readById(id));
     }
 
     @Override
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create a tag", response = TagDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Successfully created a tag"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 201, message = "Successfully created tag")
     })
     public TagDtoResponse create(@RequestBody TagDtoRequest dtoRequest) {
         return addHateoasLinksToTagDtoResponse(tagService.create(dtoRequest));
     }
 
     @Override
-    @PatchMapping(value = "/{id:\\d+}")
+    @PatchMapping(value = "/{id:\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Patch tag information", response = TagDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully patched tag information"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully updated tag with the supplied id"),
+        @ApiResponse(code = 404, message = "Tag with the supplied id not found")
     })
     public TagDtoResponse update(@PathVariable Long id,
                                  @RequestBody TagDtoRequest dtoRequest) {
@@ -101,9 +95,8 @@ public class TagRestController implements BaseController<TagDtoRequest, TagDtoRe
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiOperation(value = "Deletes specific tag with the supplied id")
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Successfully deleted the specific tag"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 204, message = "Successfully deleted tag with the supplied id"),
+        @ApiResponse(code = 404, message = "Tag with the supplied id not found")
     })
     public void deleteById(@PathVariable Long id) {
         tagService.deleteById(id);

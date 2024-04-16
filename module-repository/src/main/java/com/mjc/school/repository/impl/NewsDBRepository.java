@@ -3,6 +3,7 @@ package com.mjc.school.repository.impl;
 import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.filter.SearchCriteria;
 import com.mjc.school.repository.model.Author;
+import com.mjc.school.repository.model.Comment;
 import com.mjc.school.repository.model.News;
 import com.mjc.school.repository.model.Tag;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -30,6 +31,10 @@ public class NewsDBRepository extends AbstractDBRepository<News, Long> implement
         List<Tag> tags = nextState.getTags();
         if (tags != null && !tags.isEmpty()) {
             prevState.setTags(tags);
+        }
+        List<Comment> comments = nextState.getComments();
+        if(comments != null && !comments.isEmpty()){
+            prevState.setComments(comments);
         }
     }
 

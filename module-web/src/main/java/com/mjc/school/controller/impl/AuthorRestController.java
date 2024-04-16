@@ -21,7 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/api/v1/authors", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(produces = "application/json", value = "Operations for creating, patching, retrieving, deleting and retrieving with amount of written news authors in the application")
+@Api(tags = "Author API", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthorRestController implements BaseController<AuthorDtoRequest, AuthorDtoResponse, Long, AuthorDtoRequest> {
     private final AuthorService authorService;
 
@@ -35,9 +35,7 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "View all authors", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved all authors"),
-        @ApiResponse(code = 400, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved all authors")
     })
     public PageDtoResponse<AuthorDtoResponse> readAll(@RequestParam(value = "page", defaultValue = "1") int page,
                                                       @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
@@ -48,7 +46,10 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
             .page(page)
             .pageSize(pageSize)
             .build();
-        PageDtoResponse<AuthorDtoResponse> pageDtoResponse = authorService.readAll(paginationDtoRequest, null, null);
+        SearchFilterDtoRequest searchFilterDtoRequest = SearchFilterDtoRequest.builder()
+            .filters(filters)
+            .build();
+        PageDtoResponse<AuthorDtoResponse> pageDtoResponse = authorService.readAll(paginationDtoRequest, null, searchFilterDtoRequest);
         pageDtoResponse.setModelDtoList(pageDtoResponse.getModelDtoList().stream().map(AuthorRestController::addHateoasLinksToAuthorDtoResponse)
             .collect(Collectors.toList()));
         return pageDtoResponse;
@@ -57,40 +58,33 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
     @Override
     @GetMapping(value = "/{id:\\d+}")
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "Retrieve specific author with the supplied id", response = AuthorDtoResponse.class)
+    @ApiOperation(value = "View author by supplied id", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved the author with the supplied id"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 404, message = "Author with the supplied id not found")
     })
     public AuthorDtoResponse readById(@PathVariable Long id) {
         return addHateoasLinksToAuthorDtoResponse(authorService.readById(id));
     }
 
     @Override
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "Create an author", response = AuthorDtoResponse.class)
+    @ApiOperation(value = "Create author", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Successfully created a author"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 201, message = "Successfully created author")
     })
     public AuthorDtoResponse create(@RequestBody AuthorDtoRequest dtoRequest) {
         return addHateoasLinksToAuthorDtoResponse(authorService.create(dtoRequest));
     }
 
     @Override
-    @PatchMapping(value = "/{id:\\d+}")
+    @PatchMapping(value = "/{id:\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "Patch author information", response = AuthorDtoResponse.class)
+    @ApiOperation(value = "Update author by supplied id", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully patched author information"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully updated author with the supplied id"),
+        @ApiResponse(code = 404, message = "Author with the supplied id not found")
     })
     public AuthorDtoResponse update(@PathVariable Long id,
                                     @RequestBody AuthorDtoRequest dtoRequest) {
@@ -100,11 +94,10 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
     @Override
     @DeleteMapping(value = "/{id:\\d+}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiOperation(value = "Deletes specific author with the supplied id", response = AuthorDtoResponse.class)
+    @ApiOperation(value = "Delete author by supplied id", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Successfully deleted the specific author"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 204, message = "Successfully deleted author with the supplied id"),
+        @ApiResponse(code = 404, message = "Author with the supplied id not found")
     })
     public void deleteById(@PathVariable Long id) {
         authorService.deleteById(id);
@@ -115,14 +108,10 @@ public class AuthorRestController implements BaseController<AuthorDtoRequest, Au
     @ApiOperation(value = "View all authors with amount of written news", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved all authors with amount of written news"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
     }
     )
     public PageDtoResponse<AuthorWithNewsCountDtoResponse> readWithNewsCount(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                              @RequestParam(value = "page-size", defaultValue = "10") int pageSize) {
-
-
         PaginationDtoRequest paginationDtoRequest = PaginationDtoRequest.builder()
             .page(page)
             .pageSize(pageSize)

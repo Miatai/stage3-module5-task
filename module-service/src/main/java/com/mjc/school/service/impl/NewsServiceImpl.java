@@ -33,23 +33,22 @@ public class NewsServiceImpl implements NewsService {
     private final AuthorRepository authorRepository;
     private final TagRepository tagRepository;
     private final NewsMapper mapper;
-
-    private final NewsSortingMapper newsSortingMapper;
-    private final NewsSearchFilterMapper newsFilterMapper;
+    private final NewsSortingMapper sortingMapper;
+    private final NewsSearchFilterMapper searchFilterMapper;
 
     @Autowired
     public NewsServiceImpl(final NewsRepository newsRepository,
                            final AuthorRepository authorRepository,
                            final TagRepository tagRepository,
                            final NewsMapper mapper,
-                           final NewsSortingMapper newsSortingMapper,
-                           final NewsSearchFilterMapper newsFilterMapper) {
+                           final NewsSortingMapper sortingMapper,
+                           final NewsSearchFilterMapper searchFilterMapper) {
         this.newsRepository = newsRepository;
         this.authorRepository = authorRepository;
         this.tagRepository = tagRepository;
         this.mapper = mapper;
-        this.newsSortingMapper = newsSortingMapper;
-        this.newsFilterMapper = newsFilterMapper;
+        this.sortingMapper = sortingMapper;
+        this.searchFilterMapper = searchFilterMapper;
     }
 
 
@@ -62,8 +61,8 @@ public class NewsServiceImpl implements NewsService {
                                                     @ValidFields(fields = {"title", "content", "tags.name", "tags.id", "author.name"})
                                                     SearchFilterDtoRequest searchFilterDtoRequest) {
         Page<News> modelPage = newsRepository.readAll(new Pagination(paginationDtoRequest.getPage(), paginationDtoRequest.getPageSize()),
-            newsSortingMapper.map(sortingDtoRequest),
-            newsFilterMapper.map(searchFilterDtoRequest));
+            sortingMapper.map(sortingDtoRequest),
+            searchFilterMapper.map(searchFilterDtoRequest));
         List<NewsDtoResponse> responseDtoList = mapper.modelListToDtoList(modelPage.entities());
         return new PageDtoResponse<>(responseDtoList, modelPage.currentPage(), modelPage.pageCount());
     }

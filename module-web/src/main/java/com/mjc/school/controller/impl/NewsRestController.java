@@ -24,7 +24,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/api/v1/news", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(produces = "application/json", value = "Operations for creating, patching, retrieving and deleting news and retrieving component of news in the application")
+@Api(tags = "News API", produces = MediaType.APPLICATION_JSON_VALUE)
 public class NewsRestController implements BaseController<NewsDtoCreateRequest, NewsDtoResponse, Long, NewsDtoUpdateRequest> {
     private final NewsService newsService;
     private final TagService tagService;
@@ -48,9 +48,7 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "View all news", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved all news"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved all news")
     })
     public PageDtoResponse<NewsDtoResponse> readAll(@RequestParam(value = "page", defaultValue = "1") int page,
                                                     @RequestParam(value = "page-size", defaultValue = "10") int pageSize,
@@ -80,23 +78,18 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ApiOperation(value = "Retrieve specific news with the supplied id", response = NewsDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved the news with the supplied id"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 404, message = "News with the supplied id not found")
     })
     public NewsDtoResponse readById(@PathVariable Long id) {
         return addHateoasLinksToNewsDtoResponse(newsService.readById(id));
     }
 
     @Override
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create a news", response = NewsDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Successfully created a news"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 201, message = "Successfully created news")
     }
     )
     public NewsDtoResponse create(@RequestBody NewsDtoCreateRequest dtoRequest) {
@@ -104,14 +97,12 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     }
 
     @Override
-    @PatchMapping(value = "/{id:\\d+}")
+    @PatchMapping(value = "/{id:\\d+}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Patch news information", response = NewsDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully patched news information"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully updated news with the supplied id"),
+        @ApiResponse(code = 404, message = "News with the supplied id not found")
     }
     )
     public NewsDtoResponse update(@PathVariable Long id,
@@ -124,9 +115,8 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiOperation(value = "Deletes specific news with the supplied id")
     @ApiResponses(value = {
-        @ApiResponse(code = 204, message = "Successfully deleted the specific news"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 204, message = "Successfully deleted news with the supplied id"),
+        @ApiResponse(code = 404, message = "News with the supplied id not found")
     }
     )
     public void deleteById(@PathVariable Long id) {
@@ -137,10 +127,7 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Retrieve specific tags with the supplied news id", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved specific tags with the supplied news id"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved all tags with the supplied news id")
     }
     )
     public PageDtoResponse<TagDtoResponse> readTagsByNewsId(@PathVariable Long id,
@@ -160,10 +147,7 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Retrieve specific comments with the supplied news id", response = PageDtoResponse.class)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Successfully retrieved specific comments with the supplied news id"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 200, message = "Successfully retrieved all comments with the supplied news id")
     }
     )
     public PageDtoResponse<CommentForNewsDtoResponse> readCommentsByNewsId(@PathVariable Long id,
@@ -188,9 +172,7 @@ public class NewsRestController implements BaseController<NewsDtoCreateRequest, 
     @ApiOperation(value = "Retrieve specific author with the supplied news id", response = AuthorDtoResponse.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Successfully retrieved specific author with the supplied news id"),
-        @ApiResponse(code = 400, message = "The request parameters are invalid"),
-        @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
-        @ApiResponse(code = 500, message = "Application failed to process the request")
+        @ApiResponse(code = 404, message = "Author with the supplied news id not found")
     }
     )
     public AuthorDtoResponse readAuthorByNewsId(@PathVariable Long id) {
