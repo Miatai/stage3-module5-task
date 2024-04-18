@@ -9,10 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record NewsDtoCreateRequest(
-    @Min(1)
-    @Max(Long.MAX_VALUE)
-    Long id,
-
     @NotNull
     @Size(min = 5, max = 30)
     String title,

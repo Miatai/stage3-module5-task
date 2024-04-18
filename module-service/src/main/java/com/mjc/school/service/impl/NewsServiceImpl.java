@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.mjc.school.service.exceptions.ServiceErrorCode.NEWS_CONFLICT;
 import static com.mjc.school.service.exceptions.ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST;
@@ -99,7 +100,6 @@ public class NewsServiceImpl implements NewsService {
         }
         createNonExistentAuthor(updateRequest.authorName());
         createNonExistentTags(updateRequest.tagsNames());
-
         News model = mapper.dtoToModel(updateRequest);
         model.setId(id);
         model = newsRepository.update(model);

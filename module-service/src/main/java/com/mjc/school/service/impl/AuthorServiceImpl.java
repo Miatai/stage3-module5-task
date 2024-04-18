@@ -79,6 +79,7 @@ public class AuthorServiceImpl implements AuthorService {
     public AuthorDtoResponse update(Long id, @Valid AuthorDtoRequest updateRequest) {
         if (authorRepository.existById(id)) {
             Author model = mapper.dtoToModel(updateRequest);
+            model.setId(id);
             model = authorRepository.update(model);
             return mapper.modelToDto(model);
         } else {

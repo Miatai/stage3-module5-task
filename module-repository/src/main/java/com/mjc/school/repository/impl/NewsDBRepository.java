@@ -32,10 +32,10 @@ public class NewsDBRepository extends AbstractDBRepository<News, Long> implement
         if (tags != null && !tags.isEmpty()) {
             prevState.setTags(tags);
         }
-        List<Comment> comments = nextState.getComments();
-        if(comments != null && !comments.isEmpty()){
-            prevState.setComments(comments);
-        }
+//        List<Comment> comments = nextState.getComments();
+//        if(comments != null && !comments.isEmpty()){
+//            prevState.setComments(comments);
+//        }
     }
 
     @Override
